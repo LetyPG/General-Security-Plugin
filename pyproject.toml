@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "general-security-plugin"
+version = "1.0.0"
+description = "Modular credentials scanner plugin for AI agents"
+requires-python = ">=3.10"
+dependencies = []   # empty now because hooks only use standard libs. Update if any new lib is added
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "poethepoet>=0.25.0",
+    "ruff>=0.12.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["hooks*", "skills*"]
+
+[tool.poe.tasks]
+lint                          = "ruff check ."
+"lint:fix"                    = "ruff check . --fix"
+test                          = "pytest tests"
+"test:hook"                   = "pytest tests/tests-hooks"
+"test:hook-unit"              = "pytest tests/tests-hooks/unit"
+"test:hook-capacity"          = "pytest tests/tests-hooks/unit/test_capacity_evaluator.py"
+"test:hook-contract"          = "pytest tests/tests-hooks/unit/test_hook_contract.py"
+"test:hook-archetype"         = "pytest tests/tests-hooks/unit/test_archetype_detector.py"
+"test:hook-exclusion"         = "pytest tests/tests-hooks/unit/test_exclusion_filter.py"
+"test:hook-risk"              = "pytest tests/tests-hooks/unit/test_risk_prioritizer.py"
+"test:hook-integration"       = "pytest tests/tests-hooks/integration"
+"test:hook-capacity-gate"     = "pytest tests/tests-hooks/integration/test_capacity_gate_hook.py"
+"test:hook-discovery-engine"  = "pytest tests/tests-hooks/integration/test_discovery_engine.py"
+"test:skills"                 = "pytest tests/tests-skills"
+"test:skill-common"           = "pytest tests/tests-skills/test_common.py"
+"test:skill-scan-code"        = "pytest tests/tests-skills/test_scan_code_patterns.py"
+"test:skill-scan-dependencies"= "pytest tests/tests-skills/test_scan_dependencies.py"
+"test:skill-scan-secrets"     = "pytest tests/tests-skills/test_scan_secrets.py"
+"test:skill-scan-infrastructure"     = "pytest tests/tests-skills/test_scan_infrastructure_configs.py"
+"test:skill-prompt-injection" = "pytest tests/tests-skills/test_scan_prompt_injection.py"
+"test:skill-scan-ai-env"      = "pytest tests/tests-skills/test_scan_ai_environment.py"
+"test:skill-injection-risk"   = "pytest tests/tests-skills/test_scan_injections_risks.py"
+"test:skill-auth-crypto"      = "pytest tests/tests-skills/test_scan_auth_crypto.py"
+
+[tool.ruff.lint]
+ignore = ["N999", "PYI034"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [
+ ".",
+]
+

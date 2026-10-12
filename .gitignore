@@ -1,0 +1,12 @@
+
+.__pycache__
+.env
+.venv/
+.pytest_cache/
+__pycache__
+
+
+*.egg-info/
+.ruff_cache/
+
+general_security_plugin.egg-info/

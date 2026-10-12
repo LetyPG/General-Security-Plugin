@@ -1,0 +1,19 @@
+{
+    "name": "general-security-plugin",
+    "version": "1.0.0",
+    "description": "Run a comprehensive security audit of the project using 8 specialized security skills, to prevent security risk vulnerabilities, specially ocasionated by AI Agents for coding. Audit agent environment, secrets, code vulnerabilities, supply chain, injection, auth/crypto, infrastructure, and prompt injection defense. Returns a prioritized report with remediation.  Use when performing a full security review, vulnerability assessment, or pre-deployment security check.",
+    "engine": {
+        "python": ">=3.10"
+    },
+    "author": {
+        "name": "Leticia Gainza",
+        "role": "Software Quality Engineering Consultant"
+    },
+    "repository": "https://github.com/LetyPG/General-Security-Plugin",
+    "license": "Apache-2.0",
+    "keywords": [
+        "security",
+        "string",
+        "string"
+    ]
+}
