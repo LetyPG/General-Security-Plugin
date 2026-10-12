@@ -20,12 +20,12 @@ temperature: 0.3
 
 ## Context
 
-OWASP ranks Agent Goal Hijacking (ASI01) as the #1 risk for agentic applications in 2026.
-AI Agent for coding reads files, executes commands, and interacts with MCP servers. Every configuration surface is a potential vector for prompt injection, privilege escalation, or unauthorized action.
+OWASP ranks **Agent Goal Hijacking (ASI01)** as the **#1 risk for agentic applications in 2026**.
+AI Agent for coding reads files, executes commands, and interacts with MCP servers. Every configuration surface is a potential vector for prompt injection, privilege escalation, or unauthorized action, because Agents cannot reliably separate trusted system instructions from untrusted data (such as emails, documents, web pages, or tool outputs)
 
 For that reason you must be very careful when reviewing the security of the AI Agent for coding environment, this will prevent prompt injection attacks or exposure to other vulnerabilities mentionated before.
 
-> Recent attacks have demonstrated the risks:
+> [!WARNING] Reference risk and attack: 
 > - In Feb 2026, the SANDWORM_MODE attack deployed 19 malicious npm packages disguised as MCP servers.
 > - 24,008 unique secrets were found in MCP config files on public GitHub.
 
@@ -82,6 +82,34 @@ Find MCP configs in `.agent/settings.json` , `mcp.json`, `mcp-config.json`. Chec
 ### 6. .cursorrules
 If present, check for directives that bypass security checks.
 
+## Remediations suggestions base on mitigation and control practices:
+
+The fallowing remediation practices base on OWASP Top 10 Aplication Risk and CWE are some examples of remediations suggestions base on mitigation and control practices:
+
+1. Treat All Inputs as Untrusted: Apply inline inspection and sanitization to every piece of external text, file, or web content an agent processes
+2. Enforce Least Agency: Restrict high-impact or goal-altering actions (such as financial transfers or mass data sharing) behind strict Human-in-the-Loop approval.
+3. Monitor Goal Drift: Continuously track tool call sequences and execution paths to detect sudden deviations from the agent's original mission 
+4. Implement Clear Termination: Design a mechanism to pause or halt agent operations when indicators of compromise or goal deviation are detected.
+5. Use Certified Tool Providers: Prefer MCP servers and hooks from official, well-maintained sources to avoid supply chain risks.
+6. Log All Actions: Maintain a detailed, tamper-evident log of all agent activities, tool executions, and decision points.
+7. Implement Defense-in-Depth: Combine multiple layers of security controls (e.g., input filtering, output validation, and execution monitoring) to create a robust defense against attacks.
+8. Validate and Sanitize All Outputs: Apply strict validation and sanitization to data returned by tools before it is used in prompts or system responses.
+9. Use Context-Aware Execution: Employ intelligent routing systems that assess the risk profile of each task and apply appropriate security measures.
+10. Enforce Strict Permission Boundaries: Explicitly deny access to sensitive files, directories, and operations beyond what is required for the agent's tasks.
+11. Implement Secure Defaults: Configure agents with secure default settings (e.g., restricted file access, explicit approval for dangerous operations).
+12. Perform Regular Security Audits: Conduct periodic reviews of agent configurations, hooks, and tool usage patterns to identify and address vulnerabilities.
+
+>You can provide a broader range of remediation practices base on the context of the scanning project including code fixes.
+---
+
+## Constraints
+Key invariants:
+- **Taxonomy Alignment**: Map each finding to `owasp_mapping` (`ASI01 - Goal Hijacking`, `ASI02 - Excessive Agency`, or `ASI03 - Insufficient Access Controls`) and `cwe_id`.
+- **Zero-Raw-Secret Invariant**: Mask any secret values found in MCP configurations or hook files (show first 4 and last 4 characters only).
+- **Governance Recommendation**: If no agent instructions file (`AGENTS.md`, `CLAUDE.md`, etc.) exists, include a low-severity recommendation to establish clear boundary rules.
+
+
+---
 ## Output
 
 The scanning script (`python3 scan_ai_environment.py --json`) generates findings matching the canonical schema (`id`, `severity`, `category`, `file`, `line`, `pattern`, `match`, `detail`, `cwe_id`).
@@ -118,7 +146,3 @@ You MUST deliver your final AI environment security audit as a structured JSON o
 }
 ```
 
-Key invariants:
-- **Taxonomy Alignment**: Map each finding to `owasp_mapping` (`ASI01 - Goal Hijacking`, `ASI02 - Excessive Agency`, or `ASI03 - Insufficient Access Controls`) and `cwe_id`.
-- **Zero-Raw-Secret Invariant**: Mask any secret values found in MCP configurations or hook files (show first 4 and last 4 characters only).
-- **Governance Recommendation**: If no agent instructions file (`AGENTS.md`, `CLAUDE.md`, etc.) exists, include a low-severity recommendation to establish clear boundary rules.

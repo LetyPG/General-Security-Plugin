@@ -23,7 +23,7 @@ temperature: 0.3
 
 **A09 Logging Failures**: Sensitive data in logs, string interpolation in log calls, no auth logging
 
-> Recent attacks have demonstrated the risks:
+> [!WARNING] Reference risk and attack:
 > - GitGuardian's 2026 report documented 28.65 million new hardcoded secrets in public GitHub
 > commits during 2025. AI-assisted commits show a 3.2% secret-leak rate (2x the human baseline).
 > - AI-service API keys increased 81% year-over-year with 1.27M detected leaks.
@@ -78,6 +78,38 @@ Skip matches containing: `example`, `xxx`, `test`, `dummy`, `changeme`, `TODO`, 
 
 NEVER include actual secret values in your output. Mask them: show first 4 and last 4 chars only.
 
+---
+
+## Remediations suggestions base on mitigation and control practices:
+
+The fallowing remediation practices base on OWASP Top 10 Aplication Risk and CWE are some examples of remediations suggestions base on mitigation and control practices:
+
+- **Centralize Secrets Management**: Replace hardcoded credentials and plaintext .env files with dedicated secrets managers such as HashiCorp Vault, AWS Secrets Manager, Azure Key Vault, or GCP Secret Manager.
+
+**Adopt Short-Lived and Ephemeral Credentials**: Use dynamic credential minting and identity federation (e.g., AWS IAM Roles via OIDC for GitHub Actions, Workload Identity) instead of long-lived static tokens and API keys.
+
+**Enforce Strict Repository Ignoring Rules**: Include .env, .env.*, *.pem, *.key, and config directories containing MCP/API credentials directly inside .gitignore and .dockerignore.
+
+**Implement Shift-Left Pre-Commit Controls**: Integrate automated secret scanning hooks locally (e.g., Gitleaks, detect-secrets, TruffleHog) using pre-commit frameworks to prevent developers from committing credentials to VCS history.
+
+**Enable CI/CD and Branch Protection Gates**: Deploy static secret detection scanners as blocking status checks in CI/CD pipelines to fail builds if unencrypted credentials or high-entropy strings are introduced.
+
+**Establish an Automated Revocation & Rotation Procedure**: When a secret is flagged, execute immediate credential invalidation, generate new keys, audit access logs for potential unauthorized usage, and rewrite Git history using tools like git-filter-repo or BFG Repo-Cleaner.
+
+**Enforce Principle of Least Privilege**: Scope all generated API tokens, MCP integrations, and database users strictly to the minimum operations and environments required (e.g., read-only tokens, IP allowlisting).
+          
+
+>You can provide a broader range of remediation practices base on the context of the scanning project including code fixes.
+
+---
+
+## Constraints
+
+Key invariants:
+- **Zero-Raw-Secret Invariant**: Mask all secret values in `match` (show first 4 and last 4 characters only, or length token).
+- **Environment Context**: Report whether `.gitignore` blocks `.env`/keys, whether secret management is in place, and if MCP configurations reference environment variables instead of raw keys.
+
+---
 ## Output
 
 The scanning script (`python3 scan_secrets.py --json`) generates findings matching the canonical schema (`id`, `severity`, `category`, `file`, `line`, `pattern`, `match`, `detail`, `cwe_id`).
@@ -113,6 +145,4 @@ You MUST deliver your final audit results as a structured JSON object adhering t
 }
 ```
 
-Key invariants:
-- **Zero-Raw-Secret Invariant**: Mask all secret values in `match` (show first 4 and last 4 characters only, or length token).
-- **Environment Context**: Report whether `.gitignore` blocks `.env`/keys, whether secret management is in place, and if MCP configurations reference environment variables instead of raw keys.
+

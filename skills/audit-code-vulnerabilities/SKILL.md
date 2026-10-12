@@ -20,9 +20,11 @@ temperature: 0.2
 
 ## Context
 
+Several patterns found across AI Agents for coding that can generate functional code but systematically misses input validation, output encoding, and secure defaults.
+
 > Recent attacks have demonstrated the risks:
-> - Veracode's 2025-2026 studies: 45% of AI-generated code introduces OWASP Top 10 flaws.
-> - Java 72% failure rate. XSS 86% failure. Log injection 88% failure. AI generates functional code but systematically misses input validation, output encoding, and secure defaults.
+> **OWASP Top 10 2021:** A03:2021 – Injection. Remains the #1 risk in 2025 (Veracode State of Software Security Report), accounting for 46% of web application vulnerabilities. AI agents introduce ~61% more injection defects compared to human developers (4.9 vs 2.8 per 1000 lines). AI-generated functions show 2× higher vulnerability rates: 25.2 per 100K LOC vs. human baseline of 13.7 (Secure Code Warrior 2025).
+> - Java 72% failure rate. XSS 86% failure. Log injection 88% failure. 
 
 ## Scanning Tool
 
@@ -33,37 +35,71 @@ The complete command: `python3 scan_code_patterns.py [project_root]`.
 
 ## Scanning Goals & Methodology
 
-### AI-Specific Failure Patterns (highest priority)
-
-1. **Missing Input Validation** — HTTP handlers using request data without validation/schema
-2. **Insecure Defaults** — `debug=True`, `CORS(app)` allow-all, hardcoded secret keys, `verify=False`
-3. **Prototype Pollution / Mass Assignment** — Object spread/merge from untrusted input without allowlist
-4. **Race Conditions** — Check-then-act in async code (especially financial operations)
-
-### OWASP Top 10
-
-- **A01 Broken Access Control**: Routes without auth, missing authorization, IDOR, CORS `*`
-- **A02 Crypto Failures**: MD5/SHA1 for passwords, ECB mode, hardcoded keys, `Math.random()` for tokens
-- **A04 Insecure Design**: Client-only business logic, no rate limits, account enumeration
-- **A05 Misconfiguration**: Debug mode in prod, stack traces in errors, default credentials
-- **A08 Integrity Failures**: `eval()`/`exec()` on user input, `pickle.loads()`, `yaml.load()`
-- **A09 Logging Failures**: Sensitive data in logs, string interpolation in log calls, no auth logging
-
-### Language-Specific
-
-**JS/TS:** eval, innerHTML, dangerouslySetInnerHTML, document.write, ReDoS, Object.assign from untrusted
-**Python:** pickle.loads, yaml.load, os.system, subprocess shell=True, f-string SQL, assert for security
-**Go:** fmt.Sprintf in SQL, HTTP without timeouts, ioutil.ReadAll without limits, unchecked errors
-**Java:** Runtime.exec concatenation, XML without XXE protection, ObjectInputStream untrusted
-**Rust:** excessive unsafe, transmute on untrusted data, unchecked indexing, panic in library code
-
-## Scanning Strategy
+### Scanning Strategy
 
 1. Identify entry points (HTTP handlers, CLI args, message consumers)
 2. Trace data flow from input to storage/output
 3. Check validation at each trust boundary
 4. Verify output encoding for context (HTML, SQL, shell, logs)
 5. Review error handling for information disclosure
+
+**Use the fallowings categories for scanning, the order is important, as a check list:**
+
+### AI-Specific Failure Patterns (highest priority)
+
+- [x] **Missing Input Validation** — HTTP handlers using request data without validation/schema
+- [x] **Insecure Defaults** — `debug=True`, `CORS(app)` allow-all, hardcoded secret keys, `verify=False`
+- [x] **Prototype Pollution / Mass Assignment** — Object spread/merge from untrusted input without allowlist
+- [x] **Race Conditions** — Check-then-act in async code (especially financial operations)
+
+### OWASP Top 10
+
+- [x] **A01 Broken Access Control**: Routes without auth, missing authorization, IDOR, CORS `*`
+- [x] **A02 Crypto Failures**: MD5/SHA1 for passwords, ECB mode, hardcoded keys, `Math.random()` for tokens
+- [x] **A04 Insecure Design**: Client-only business logic, no rate limits, account enumeration
+- [x] **A05 Misconfiguration**: Debug mode in prod, stack traces in errors, default credentials
+- [x] **A08 Integrity Failures**: `eval()`/`exec()` on user input, `pickle.loads()`, `yaml.load()`
+- [x] **A09 Logging Failures**: Sensitive data in logs, string interpolation in log calls, no auth logging
+
+### Language-Specific
+
+- [x] **JS/TS:** eval, innerHTML, dangerouslySetInnerHTML, document.write, ReDoS, Object.assign from untrusted
+- [x] **Python:** pickle.loads, yaml.load, os.system, subprocess shell=True, f-string SQL, assert for security
+- [x] **Go:** fmt.Sprintf in SQL, HTTP without timeouts, ioutil.ReadAll without limits, unchecked errors
+- [x] **Java:** Runtime.exec concatenation, XML without XXE protection, ObjectInputStream untrusted
+- [x] **Rust:** excessive unsafe, transmute on untrusted data, unchecked indexing, panic in library code
+
+---
+
+## Remediations suggestions base on mitigation and control practices:
+
+The fallowing remediation practices base on OWASP Top 10 Aplication Risk and CWE are some examples of remediations suggestions base on mitigation and control practices:
+
+- **Missing Input Validation** : HTTP handler reading request data directly.Schema validation (Pydantic), type hints, regex patterns, length limits, format checks.
+- **Insecure Defaults** : Environment-aware config, explicit allowlists, disable debug in production.
+- **Prototype Pollution**: Merge allowlisted properties only, use freezed/immutable objects.           
+- **Race Conditions**: DB transactions, optimistic concurrency, atomic operations. 
+- **Insecure Deserialization**: Use safe parsers (JSON), avoid deserialization, validate schemas, sandboxing.
+- **SQL Injection**: Parameterized queries, ORM with bound parameters.
+- **XSS (HTML)** : Context-aware escaping (HTML sanitizer, React auto-escape), template engines.
+- **Log Injection**: Structured logging (JSON), template libraries that escape newlines.
+- **Insecure File Upload**: Whitelist extensions, validate mime-type, scan for malware, store outside web root.
+- **Weak Cryptography**: bcrypt/ Argon2 for passwords, AES-256-GCM, crypto.randomBytes().
+- **Insecure Design**: Server-side business logic, rate limiting middleware, CAPTCHA, brute-force protection.
+- **Misconfiguration**: Strong defaults, proper error boundaries, disable debug in production.
+- **Insecure Dependencies**: `npm audit`, `pip check`, Renovate/Dependabot for automated update
+- **Information Disclosure**: Generic error messages, configurable logging levels, error boundaries             
+
+>You can provide a broader range of remediation practices base on the context of the scanning project including code fixes.
+---
+
+## Constraints
+
+Key invariants:
+- **Remediation Context**: For each finding, include `fixed_code` demonstrating the secure implementation pattern alongside the `remediation` explanation.
+- **Traceability**: Preserve exact `file`, `line`, `match` (vulnerable snippet), and corresponding `cwe_id`.
+
+---
 
 ## Output
 
@@ -98,6 +134,4 @@ You MUST deliver your final code vulnerability assessment as a structured JSON o
 }
 ```
 
-Key invariants:
-- **Remediation Context**: For each finding, include `fixed_code` demonstrating the secure implementation pattern alongside the `remediation` explanation.
-- **Traceability**: Preserve exact `file`, `line`, `match` (vulnerable snippet), and corresponding `cwe_id`.
+

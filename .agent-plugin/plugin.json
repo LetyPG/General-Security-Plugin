@@ -1,7 +1,7 @@
 {
     "name": "general-security-plugin",
     "version": "1.0.0",
-    "description": "Run a comprehensive security audit of the project using 8 specialized security skills, to prevent security risk vulnerabilities, specially ocasionated by AI Agents for coding. Audit agent environment, secrets, code vulnerabilities, supply chain, injection, auth/crypto, infrastructure, and prompt injection defense. Returns a prioritized report with remediation.  Use when performing a full security review, vulnerability assessment, or pre-deployment security check.",
+    "description": "Comprehensive security audit plugin powered by 8 specialized security skills, designed to detect and remediate vulnerabilities introduced or exacerbated by AI coding agents. Audits AI environment configs, secrets, code vulnerabilities, supply chain, injection risks, auth/crypto, infrastructure, and prompt injection. Delivers a prioritized Markdown report with risk scoring and remediation guidance.",
     "engine": {
         "python": ">=3.10"
     },
@@ -13,7 +13,15 @@
     "license": "Apache-2.0",
     "keywords": [
         "security",
-        "string",
-        "string"
+        "security-audit",
+        "ai-agents",
+        "vulnerability-scanner",
+        "prompt-injection",
+        "secret-detection",
+        "supply-chain",
+        "owasp-top-10",
+        "cwe",
+        "static-analysis",
+        "appsec"
     ]
 }

@@ -10,3 +10,5 @@ __pycache__
 .ruff_cache/
 
 general_security_plugin.egg-info/
+
+security_audit_report_*.md

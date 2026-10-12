@@ -34,6 +34,19 @@ From results of every scanner skill:
 - Never emit raw secrets in your final output, if any skill will deliver or inform raw secrets in the files scanned, then you **MUST** mask them in the final report, (e.g. `AKIA************7E2A`, `<masked: length=32>`).
 - Strictly preserve original finding from the scanner skills; do not rename, merge, or alter them, and is *FORBIDDEN* to add new finding, if the scanner did not deliver it, just skip it.
 - Use the **REPORT TEMPLATE** below to generate the report.
+- **Narrow Scan**: Depneds on user intend maybe only one sacnner skill could be runned, in that case, you onlyu provide on final report the workflow metadata and the skill findings as normally do, and at the end add this comment:
+
+```markdown
+## Narrow Scan
+
+This scan only included 1 skill: `<skill_name>`, based on user request. 
+The other falloowings scanner skills were not executed, based on user request:
+- `<skill_name_not_executed1>`
+- `<skill_name_not_executed2>`
+- `<skill_name_not_executed3>`
+- `<skill_name_not_executed4>`
+- ...
+```
 
 ---
 

@@ -17,7 +17,9 @@ temperature: 0.3
 Focus exclusively on **authentication, authorization, session management, and cryptographic implementations** and identify exposure vulnerabilities.
 
 ## Context 
-- **A02 Crypto Failures**: MD5/SHA1 for passwords, ECB mode, hardcoded keys, `Math.random()` for tokens
+
+The **A02 Cryptografic Failures** is the second most common vulnerability  defined in OWASP Top 10 Aplication Risk. You should pay special attention to **MD5/SHA1 for passwords, ECB mode, hardcoded keys, `Math.random()` for tokens** and similar cryptographic misconfigurations.
+This category often leads to sensitive data exposure or system compromise.
 
 ## Scanning Tool
 
@@ -78,6 +80,7 @@ The fallowing remediation practices base on OWASP Top 10 Aplication Risk and CWE
 5. Avoid custom cryptography: Never attempt to create custom encryption algorithms ("don't roll your own crypto"). Use standard, widely validated cryptographic libraries.
 
 >You can provide a broader range of remediation practices base on the context of the scanning project including code fixes.
+
 ---
 ## Constraints
 
@@ -120,7 +123,4 @@ You MUST deliver your final authentication and cryptographic assessment as a str
 }
 ```
 
-## Constraints
-- **Traceability**: Each finding preserves `file`, `line`, exact vulnerable snippet in `match`, and corresponding `cwe_id`.
-- **Concrete Hardening**: Provide `fixed_code` demonstrating secure cryptographic primitives and proper parameters alongside a clear `remediation` explanation.
-- **Empty State**: If no auth or crypto issues are detected, return `findings: []` with zeros across all summary severities.
+

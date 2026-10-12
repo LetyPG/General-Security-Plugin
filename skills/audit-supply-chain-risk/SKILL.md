@@ -23,8 +23,8 @@ temperature: 0.2
 
 AI tools suggest packages from training data that may be outdated, deprecated, or non-existent.
 
-> Recent attacks have demonstrated the risks:
-> - SANDWORM_MODE (Feb 2026): 19 malicious npm packages targeting AI coding agents. 
+> [!WARNING] Reference risk and attack:
+> - SANDWORM_MODE (Feb 2026): 19 malicious npm packages installing rogue MCP servers, targeting AI coding agents. 
 > - litellm 1.82.8 PyPI attack (Mar 2026): harvested SSH keys and cloud credentials. 
 > - Slopsquatting: attackers register AI-hallucinated package names.
 
@@ -88,7 +88,6 @@ You MUST perform an in-depth analysis of dependencies based on the following cri
 [x] LLM client libraries (anthropic, openai, langchain) must be exact-pinned.
 [x] torch/tensorflow from official channels only.
 
-
 #### 8. GitHub Actions Workflow Security
 [x] Analyze `.github/workflows/*.yml` for sensitive operations:
   - `run:` commands that could execute arbitrary code
@@ -111,6 +110,41 @@ You MUST perform an in-depth analysis of dependencies based on the following cri
 | LOW | Minor security implications |
 | INFO | Informational |
 
+---
+
+## Remediations suggestions base on mitigation and control practices:
+
+The fallowing remediation practices base on OWASP Top 10 Aplication Risk and CWE are some examples of remediations suggestions base on mitigation and control practices:
+
+- **Enforce Deterministic Lockfile Pinning**: Commit and strictly validate cryptographic lockfiles (package-lock.json, poetry.lock, Cargo.lock, go.sum). Use immutable install commands in CI/CD (e.g., npm ci, pip install --require-hashes) to prevent unauthorized upstream drift.
+
+- **Mitigate Dependency Confusion & Typosquatting**:
+  - Register and scope internal package prefixes (e.g., @my-org/package).
+  - Configure private registries (Nexus, Artifactory, AWS CodeArtifact) with isolated upstream resolution rules so public repositories cannot override internal namespaces.
+  - Implement name similarity checks (Levenshtein distance) during static analysis to block spoofed public packages.
+
+- **Disable or Restrict Uncontrolled Lifecycle Scripts**: Audit and restrict automated execution hooks (e.g., preinstall, postinstall, setup.py) using configuration flags such as npm install --ignore-scripts or containerized sandbox wrappers.
+
+- **Implement Automated Software Composition Analysis (SCA)**: Integrate automated vulnerability and policy enforcement tools (e.g., Trivy, Snyk, Grype, Dependabot, OSV-Scanner) into PR gates to fail builds on critical/high CVSS scores or known exploited vulnerabilities.
+
+- **Generate and Verify SBOMs**: Produce verifiable Software Bill of Materials (SBOM) using standard formats (CycloneDX or SPDX) at build time, and validate artifact provenance and signatures using cryptographic tooling like Sigstore/Cosign.
+
+- **Enforce Upstream Repository Health Criteria**: Monitor package pedigree metrics (e.g., OpenSSF Scorecard), flagging dependencies with single maintainers, unmaintained codebases, lack of MFA enforcement, or recent suspicious ownership transfers.
+
+- **Isolate Build Environments (Hermetic Builds)**: Execute CI/CD builds and package installations in ephemeral, isolated network sandboxes with blocked outbound internet access during the compile/build step to neutralize data-exfiltration payloads.          
+
+>You can provide a broader range of remediation practices base on the context of the scanning project including code fixes.
+
+---
+
+## Constraints
+Key invariants:
+- **Ecosystem Summary**: Report package counts across all detected ecosystems, pinning percentage, and overall lockfile health.
+- **Traceability**: Each finding preserves the canonical schema (`id`, `severity`, `category`, `file`, `line`, `pattern`, `match`, `detail`, `cwe_id`) with concrete `remediation`.
+- You **WON'T** audit OSPackages (apk, apt, rpm), your scope packages  for scan are only language packages , as is listed in the table of Ecosystem Summary.
+- If any packages does not introduce any vulnerabilities, you **WON'T** report it in the findings section.
+
+---
 ## Output
 
 The scanning script (`python3 scan_dependencies.py --json`) generates findings matching the canonical schema (`id`, `severity`, `category`, `file`, `line`, `pattern`, `match`, `detail`, `cwe_id`).
@@ -162,6 +196,3 @@ You MUST deliver your final supply chain assessment as a structured JSON object 
 }
 ```
 
-Key invariants:
-- **Ecosystem Summary**: Report package counts across all detected ecosystems, pinning percentage, and overall lockfile health.
-- **Traceability**: Each finding preserves the canonical schema (`id`, `severity`, `category`, `file`, `line`, `pattern`, `match`, `detail`, `cwe_id`) with concrete `remediation`.

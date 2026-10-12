@@ -21,7 +21,15 @@ temperature: 0.2
 
 ## Context
 
-Injection is the #1 flaw category in AI-generated code. 86% failure on XSS, 88% on log injection (Veracode 2025). AI produces functional code but consistently fails to parameterize, sanitize, or validate inputs at trust boundaries.
+Injection is the #1 flaw category in AI-generated code. 
+
+> [!WARNING] Reference risk and attack: 
+> - Nov 2025 (GitHub): 800+ AI-generated commits injected RCE-via-Log-Injection vulnerabilities across 70+ public repositories (SecureFlag analysis). Attackers exploit unvalidated user input in log messages to execute arbitrary commands (CWE-77).
+> - Jan 2025 (GitHub CodeQL): 125 RCE vulnerabilities in AI-generated code due to path injection and unsanitized user-controlled file paths (CWE-22).
+> - Mar 2025 (ISC)², 80% of surveyed CISOs report increased injection-related security incidents since AI adoption.
+> - LLMs tend to reproduce vulnerable code patterns from training data (security vs. functionality trade-off).
+> - Common AI failures: Using string concatenation in SQL queries, unsafe template variable interpolation, missing input sanitization in request handlers, insufficient context-aware output encoding.
+> - DeepCode AI (acquired by WhiteSource) noted 3.6× higher vulnerability density in AI-generated code, with injection flaws dominating. Security-aware LLMs show promise but remain less reliable than manual review.
 
 ## Scanning Tool
 
@@ -105,8 +113,23 @@ Prevent *Improper Neutralization of Special Elements Used in a Template Engine* 
 - [x] Missing sanitization in server-side template rendering (Jinja2, Twig, Handlebars).
 - [x] User input data is concatenated directly into the template strings.
 
+---
+
+## Remediations suggestions base on mitigation and control practices:
+
+Use a suggestions the same checks you used to find the vulnerability, this are remediation practices base on OWASP Top 10 Aplication Risk and CWE, so you can use that as remediation suggestions for the user
+          
+
+>You can provide a broader range of remediation practices base on the context of the scanning project including code fixes.
+
+---
+
 ## Constraints
 
+Key invariants:
+- **Traceability**: Each finding must include `file`, `line`, exact vulnerable snippet in `match`, and corresponding `cwe_id`.
+- **Actionable Remediation**: Propose concrete `fixed_code` alongside a clear `remediation` explanation demonstrating the secure parameterization or sanitization pattern.
+- **Empty State**: If no injection flaws are found, return `findings: []` with zeros across all summary severities.
 - You **MUST** mantain your scan goals and identify CWE mentionated below, this is your expertise of work, if you don't find any CWE, return an empty list.
 - You **COULD** also mentionated other vulnerabilities that you was avaible to identify as quick reference, but with no scan effort, this is just as informative of suggestions. 
 - You **WON'T** modify or fix any of the CWE, you only have to report the vulnerabilities found and asign it's respective severity level, never change the severity level, ar add any judgments to this.
@@ -146,7 +169,3 @@ You MUST deliver your final injection vulnerability assessment as a structured J
 }
 ```
 
-Key invariants:
-- **Traceability**: Each finding must include `file`, `line`, exact vulnerable snippet in `match`, and corresponding `cwe_id`.
-- **Actionable Remediation**: Propose concrete `fixed_code` alongside a clear `remediation` explanation demonstrating the secure parameterization or sanitization pattern.
-- **Empty State**: If no injection flaws are found, return `findings: []` with zeros across all summary severities.
